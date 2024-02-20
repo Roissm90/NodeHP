@@ -1,25 +1,17 @@
-const Personaje = require("../models/personaje.model");
+const Mago = require("../models/mago.model");
 
-const getPersonajes = async (req, res) => {
+const getMagos = async (req, res) => {
   try {
-    const allPersonajes = await Personaje.find()
-    .populate('apariciones')
-    .populate('casa')
-    .populate('sangre')
-    .exec();
+    const allPersonajes = await Mago.find()
     return res.status(200).json(allPersonajes);
   } catch (error) {
     return res.status(500).json(error);
   }
 };
-const getPersonajeById = async (req, res) => {
+const getMagoById = async (req, res) => {
   try {
     const { id } = req.params;
-    const personaje = await Personaje.findById(id)
-      .populate('apariciones')
-      .populate('casa')
-      .populate('sangre')
-      .exec();
+    const personaje = await Mago.findById(id)
 
     if (!personaje) {
       return res.status(404).json({ message: "El personaje no fue encontrado" });
@@ -30,34 +22,38 @@ const getPersonajeById = async (req, res) => {
     return res.status(500).json(error);
   }
 };
-const postPersonajes = async (req, res) => {
+const postMagos = async (req, res) => {
   try {
-    const newPersonaje = new Personaje(req.body);
+    
+    const newPersonaje = new Mago(req.body);
+    newPersonaje.picture = req.file_url;
+
     const createdPersonaje = await newPersonaje.save();
     return res.status(201).json(createdPersonaje);
   } catch (error) {
     return res.status(500).json(error);
   }
 };
-const deletePersonajes = async (req, res) => {
+
+const deleteMagos = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedPersonaje = await Personaje.findByIdAndDelete(id);
+    const deletedPersonaje = await Mago.findByIdAndDelete(id);
     if (!deletedPersonaje) {
-      return res.status(404).json({ message: "El ID del libro no existe" });
+      return res.status(404).json({ message: "El ID del personaje no existe" });
     }
     return res.status(200).json(deletedPersonaje);
   } catch (error) {
     return res.status(500).json(error);
   }
 };
-const putPersonajes = async (req, res) => {
+const putMagos = async (req, res) => {
   try {
     const { id } = req.params;
-    const putPersonaje = new Personaje(req.body);
+    const putPersonaje = new Mago(req.body);
     putPersonaje._id = id;
 
-    const updatedPersonaje = await Personaje.findByIdAndUpdate(id, putPersonaje, {
+    const updatedPersonaje = await Mago.findByIdAndUpdate(id, putPersonaje, {
       new: true,
     });
     if (!updatedPersonaje) {
@@ -69,4 +65,4 @@ const putPersonajes = async (req, res) => {
   }
 };
 
-module.exports = { getPersonajes, getPersonajeById, postPersonajes, deletePersonajes, putPersonajes };
+module.exports = { getMagos, getMagoById, postMagos, deleteMagos, putMagos };

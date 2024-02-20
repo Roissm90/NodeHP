@@ -8,7 +8,7 @@ const { isAuth } = require('../middleware/auth.middleware');
 
 router.get('/', async (req, res, next) => {
     try {
-        const users = await User.find();
+        const users = await User.find().populate('mywizard').exec();
         return res.status(200).json(users);
     } catch (err) {
         next(err);
@@ -48,17 +48,16 @@ router.post('/register', async (req, res, next) => {
             return res.status(400).json({ message: 'Invalid email' });
         }
         */
-
+        
         if (!validatePassword(newUser.password)) {
             return res.status(400).json({ message: 'Invalid password' });
         }
-
+        
         if (await usedEmail(newUser.email) > 0) {
             return res.status(400).json({ message: 'Email already in use' });
         }
     
         newUser.password = bcrypt.hashSync(newUser.password, 10);
-        newUser.validatePassword = bcrypt.hashSync(newUser.validatePassword, 10);
         console.log("Contraseña antes de cifrar:", newUser.password);
         const createdUser = await newUser.save();
         return res.status(201).json(createdUser);
@@ -67,6 +66,53 @@ router.post('/register', async (req, res, next) => {
         next(error);
     }
 });
+
+router.put('/updateMyWizard/:userId', async (req, res, next) => {
+    try {
+        const { userId } = req.params;
+        const { myWizardId } = req.body;
+        console.log(myWizardId)
+
+        // Verificar si el usuario existe
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Añadir el nuevo valor al campo mywizard del usuario
+        user.mywizard.addToSet(myWizardId);
+        await user.save();
+
+        return res.status(200).json(myWizardId);
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+});
+
+router.put('/deleteMyWizard/:userId', async (req, res, next) => {
+    try {
+        const { wizardId } = req.body;
+        const { userId } = req.params;
+
+        // Verificar si el usuario existe
+        const user = await User.findById(userId);
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Borra valor al campo mywizard del usuario
+        user.mywizard.pull(wizardId);
+        await user.save();
+
+        return res.status(200).json(userId);
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+});
+
 
 router.get('/checkSession', [isAuth], async (req, res, next) => {
     try {

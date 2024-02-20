@@ -4,6 +4,7 @@ const cors = require('cors');
 dotenv.config()
 
 const personajesRouter = require("./src/api/routes/personajes.routes");
+const magosRouter = require("./src/api/routes/magos.routes");
 const librosRouter = require("./src/api/routes/libros.routes");
 const casasRouter = require("./src/api/routes/casas.routes");
 const sangresRouter = require('./src/api/routes/sangres.routes');
@@ -21,6 +22,7 @@ app.use(express.json());
 app.use(express.urlencoded({extended:false}));
 
 app.use('/personajes', personajesRouter);
+app.use('/magos', magosRouter);
 app.use('/libros', librosRouter);
 app.use('/casas', casasRouter);
 app.use('/sangres', sangresRouter);
